@@ -1,46 +1,26 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from redis import StrictRedis
 import pymysql
-from flask_wtf.csrf import CSRFProtect
-# Session拓展工具：将session中的存储调整到redis数据库中去
-from flask_session import Session
-# 存储数据用到的session
-from flask import session
+from info import *
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
+
+# 实现python2和python3 数据库之间相互转换使用
 pymysql.install_as_MySQLdb()
 
+# 创建app对象
+app = create_app('development')
 
-class Config(object):
-    DEBUG = True
-    # mysql数据库配置
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:123456@127.0.0.1:6379/flask_db'
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
-    # 配置redis数据库
-    REDIS_HOST = '127.0.0.1'
-    REDIS_PORT = 6379
-    # 设置session加密字符串
-    SESSION_KEY = 'ADFKJLIEAFJEIOADJ'
+# 注册蓝图对象
+app.register_blueprint(index_bp)
 
-    # 设置session配置
-    SESSION_TYPE = 'redis'
-    SESSION_REDIS = StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=1)
-    SESSION_USE_SIGNET = True
-    SESSION_PERMENT = False
-    PERMENT_SESSION_LIFETIME = 86400
+# 创建管理对象
+manager = Manager(app)
 
-app = Flask(__name__)
-app.config.from_object(Config)
-db = SQLAlchemy(app)
-StrictRedis(host=Config.REDIS_HOST, port=Config.REDIS_PORT, decode_responses=True)
-CSRFProtect(app)
-Session(app)
+# 创建数据库迁移对象
+Migrate(app, db)
 
-
-@app.route('/')
-def func():
-    session['name'] = 'laowang'
-    return 'hello world'
+# 添加数据库迁移命令
+manager.add_command('db', MigrateCommand)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    manager.run()
