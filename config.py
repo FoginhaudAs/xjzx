@@ -1,5 +1,5 @@
 from redis import StrictRedis
-
+import logging
 
 
 class BaseConfig(object):
@@ -27,11 +27,12 @@ class BaseConfig(object):
 class DevelopmentConfig(BaseConfig):
     """开发者配置类"""
     DEBUG = True
-
+    LOG_LEVER = logging.DEBUG
 
 class ProductConfig(BaseConfig):
     """线上配置类"""
     DEBUG = False
+    LOG_LEVER = logging.ERROR
 
 
 Config_dict = {'development':DevelopmentConfig, 'production':ProductConfig}

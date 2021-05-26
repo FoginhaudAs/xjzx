@@ -1,7 +1,10 @@
 import pymysql
+from flask import current_app
+
 from info import *
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
+
 
 # 实现python2和python3 数据库之间相互转换使用
 pymysql.install_as_MySQLdb()
@@ -20,6 +23,8 @@ Migrate(app, db)
 
 # 添加数据库迁移命令
 manager.add_command('db', MigrateCommand)
+
+
 
 
 if __name__ == '__main__':
