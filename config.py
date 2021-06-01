@@ -6,7 +6,7 @@ class BaseConfig(object):
     """配置基类"""
 
     # mysql数据库配置
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:123456@127.0.0.1:6379/flask_db'
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:123456@127.0.0.1:6379/information'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
     # redis数据库配置
