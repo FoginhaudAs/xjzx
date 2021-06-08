@@ -48,7 +48,7 @@ def create_app(config_type='production'):
     from info.modules.passport import passport_bp
     app.register_blueprint(passport_bp)
     # 开启CSRF保护机制
-    CSRFProtect(app)
+    # CSRFProtect(app)
     # 将session内容存储到redis数据库
     Session(app)
     # 返回app对象

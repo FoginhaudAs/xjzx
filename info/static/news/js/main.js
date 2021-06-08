@@ -117,6 +117,35 @@ $(function(){
         }
 
         // 发起登录请求
+         // 组织请求数据
+        var params = {
+            "mobile": mobile,
+            "password": password
+        }
+        // js对象转换成json字符串
+        jons_str = JSON.stringify(params)
+
+        // 发送ajax请求
+        $.ajax({
+            url: "/passport/login",
+            type: "POST",
+            data: jons_str,
+            contentType: "application/json",
+            dataType: "json",
+            headers: {
+                // 从html文档中使用正则提取
+                "X-CSRFToken": ("csrf_token")
+            },
+            success: function (resp) {
+                if(resp.errno == "0"){
+                    // 登录成功 刷新页面
+                    window.location.reload()
+                }else{
+                    $("#login-password-err").html(resp.errmsg)
+                    $("#login-password-err").show()
+                }
+            }
+        })
     })
 
 
@@ -151,7 +180,44 @@ $(function(){
         }
 
         // 发起注册请求
+        // 组织请求数据
+        var params = {
 
+		    "mobile": mobile,
+            "sms_code": smscode,
+            "password": password
+
+        }
+        // 将js对象转换成json字符串
+        json_str = JSON.stringify(params)
+
+        // 发起注册请求， 使用ajax提交数据
+        $.ajax({
+            url: "/passport/register",
+            type: "POST",
+            // 上传的数据
+            data: json_str,
+            // 告知服务器上传的数据是json格式
+            contentType: "application/json",
+            // 接受的数据是json格式
+            dataType: "json",
+            headers: {
+                // 从html文档中使用正则提取
+                "X-CSRFToken": getCookie("csrf_token")
+             },
+            success: function (resp) {
+                if(resp.errno == "0"){
+                    // 注册成功 刷新页面
+                    window.location.reload()
+
+                }else{
+                    // 展示错误信息
+                    $("#register-password-err").html(resp.errmsg)
+                    $("#register-password-err").show()
+                }
+            }
+
+        })
     })
 })
 
@@ -187,39 +253,89 @@ function sendSMSCode() {
     }
 
     // TODO 发送短信验证码
-}
+    // 1.组织参数
+    var params = {
+        'mobile': mobile,
+        'image_code': imageCode,
+        'image_code_id': imageCodeId
+        }
+
+    // 2.生成json格式内容
+    json_str = JSON.stringify(params)
+    // 3.发送ajax请求
+    $.ajax({
+
+        url: '/passport/sms_code',
+        type: 'POST',
+        data: json_str,
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function (resp) {
+            if (resp.errno == '0') {
+                // 倒计时60秒，60秒后允许用户再次点击发送短信验证码的按钮
+                var num = 60;
+                // 设置一个计时器
+                var t = setInterval(function () {
+                    if (num == 1) {
+                        // 如果计时器到最后, 清除计时器对象
+                        clearInterval(t);
+                        // 将点击获取验证码的按钮展示的文本回复成原始文本
+                        $(".get_code").html("获取验证码");
+                        // 将点击按钮的onclick事件函数恢复回去
+                        $(".get_code").attr("onclick", "sendSMSCode();");
+                    } else {
+                        num -= 1;
+                        // 展示倒计时信息
+                        $(".get_code").html(num + "秒");
+                    }
+                }, 1000)
+            } else {
+                // 表示后端出现了错误，可以将错误信息展示到前端页面中
+                $("#register-sms-code-err").html(resp.errmsg);
+                $("#register-sms-code-err").show();
+                // 将点击按钮的onclick事件函数恢复回去
+                $(".get_code").attr("onclick", "sendSMSCode();");
+                // 如果错误码是4004，代表验证码错误，重新生成验证码
+                if (resp.errno == "4004") {
+                    generateImageCode()
+                }
+            }
+        }
+    })
+    }
 
 // 调用该函数模拟点击左侧按钮
-function fnChangeMenu(n) {
-    var $li = $('.option_list li');
-    if (n >= 0) {
-        $li.eq(n).addClass('active').siblings().removeClass('active');
-        // 执行 a 标签的点击事件
-        $li.eq(n).find('a')[0].click()
+    function fnChangeMenu(n) {
+        var $li = $('.option_list li');
+        if (n >= 0) {
+            $li.eq(n).addClass('active').siblings().removeClass('active');
+            // 执行 a 标签的点击事件
+            $li.eq(n).find('a')[0].click()
+        }
     }
-}
 
 // 一般页面的iframe的高度是660
 // 新闻发布页面iframe的高度是900
-function fnSetIframeHeight(num){
-	var $frame = $('#main_frame');
-	$frame.css({'height':num});
-}
-
-function getCookie(name) {
-    var r = document.cookie.match("\\b" + name + "=([^;]*)\\b");
-    return r ? r[1] : undefined;
-}
-
-function generateUUID() {
-    var d = new Date().getTime();
-    if(window.performance && typeof window.performance.now === "function"){
-        d += performance.now(); //use high-precision timer if available
+    function fnSetIframeHeight(num) {
+        var $frame = $('#main_frame');
+        $frame.css({'height': num});
     }
-    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (d + Math.random()*16)%16 | 0;
-        d = Math.floor(d/16);
-        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-    });
-    return uuid;
-}
+
+    function getCookie(name) {
+        var r = document.cookie.match("\\b" + name + "=([^;]*)\\b");
+        return r ? r[1] : undefined;
+    }
+
+    function generateUUID() {
+        var d = new Date().getTime();
+        if (window.performance && typeof window.performance.now === "function") {
+            d += performance.now(); //use high-precision timer if available
+        }
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+        return uuid;
+    }
+

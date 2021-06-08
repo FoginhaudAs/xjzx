@@ -6,15 +6,16 @@ class BaseConfig(object):
     """配置基类"""
 
     # mysql数据库配置
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:123456@127.0.0.1:6379/information'
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:123456@127.0.0.1:3306/information23'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
     # redis数据库配置
     REDIS_HOST = '127.0.0.1'
     REDIS_PORT = 6379
 
-    # 设置session加密字符串
-    SESSION_KEY = 'ADFKJLIEAFJEIOADJ'
+    # 设置secret加密字符串
+    SECRET_KEY = 'ADFKJLIEAFJEIOADJ'
 
     # 设置session配置
     SESSION_TYPE = 'redis'
