@@ -338,4 +338,25 @@ function sendSMSCode() {
         });
         return uuid;
     }
+// 退出登录的前端接口
+function login_out() {
 
+    // 发送ajax请求
+    $.ajax({
+        url: "/passport/login_out",
+        type: "POST",
+        dataType: "json",
+        headers: {
+            // 从html文档中使用正则提取
+            "X-CSRFToken": getCookie("csrf_token")
+        },
+        success: function (resp) {
+            if(resp.errno == "0"){
+
+                // 退出登录成功刷新页面
+                window.location.reload()
+            }
+        }
+    })
+
+}

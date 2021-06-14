@@ -168,6 +168,7 @@ def login():
         return jsonify(errno=RET.PARAMERR, errmsg='手机号码有误')
     # 3.业务逻辑
     # 3.1根据mobile去数据库查询用户
+    user = None # type: User
     try:
         user = User.query.filter(User.mobile == mobile).first()
     except Exception as e:
@@ -196,3 +197,11 @@ def login():
     # 4.返回值
     # 登录成功
     return jsonify(errno=RET.OK, errmsg='登录成功')
+
+@passport_bp.route('/login_out',methods=['POST'])
+def login_out():
+    session.pop('nick_name', None)
+    session.pop('mobile', None)
+    session.pop('user_id', None)
+
+    return jsonify(errno=RET.OK, errmsg='退出登录成功')

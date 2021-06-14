@@ -9,7 +9,7 @@ from logging.handlers import RotatingFileHandler
 import logging
 
 
-db = SQLAlchemy()
+db = SQLAlchemy() # type:SQLAlchemy
 
 redis_obj = None  # tpye: StrictRedis
 
